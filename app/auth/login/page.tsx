@@ -47,7 +47,7 @@ export default function LoginPage() {
             <span className="text-gray-900 dark:text-white">IQ</span>
           </h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            powered by <span className="text-brand-600 font-medium">Xeltr</span>
+            powered by <a href="https://xeltr.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:opacity-80 transition-opacity"><img src="/xeltr-logo.svg" alt="Xeltr" className="h-3.5 w-auto" /></a>
           </p>
         </div>
 

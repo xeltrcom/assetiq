@@ -9,7 +9,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'AssetIQ — Enterprise Asset Management',
   description: 'Intelligent asset management powered by Xeltr',
-  icons: { icon: '/favicon.ico' },
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
