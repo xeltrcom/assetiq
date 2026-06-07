@@ -111,3 +111,64 @@ export async function sendExpiryEmail({
     html,
   })
 }
+
+export async function sendApprovalEmail({
+  to, name, status, role,
+}: {
+  to: string
+  name: string
+  status: string
+  role: string
+}) {
+  const approved = status === 'APPROVED'
+  const subject  = approved
+    ? '[AssetIQ] Your account has been approved!'
+    : '[AssetIQ] Your access request has been declined'
+
+  const ROLE_LABELS: Record<string, string> = {
+    ADMIN: 'Administrator', ASSET_MANAGER: 'Asset Manager',
+    DEPT_MANAGER: 'Department Manager', USER: 'Employee', VIEWER: 'Viewer',
+  }
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:0;background:#F1EFE8;font-family:Arial,sans-serif">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F1EFE8;padding:32px 0">
+    <tr><td align="center">
+      <table width="540" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #D3D1C7">
+        <tr>
+          <td style="padding:20px 28px;border-bottom:1px solid #D3D1C7">
+            <span style="font-size:18px;font-weight:700;color:#534AB7">Asset</span><span style="font-size:18px;font-weight:700;color:#2C2C2A">IQ</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px">
+            <p style="font-size:16px;font-weight:600;color:#2C2C2A;margin:0 0 12px">Hi ${name},</p>
+            ${approved ? `
+            <p style="font-size:13px;color:#555;margin:0 0 16px;line-height:1.6">
+              Great news! Your AssetIQ account has been approved. You now have access as <strong>${ROLE_LABELS[role] ?? role}</strong>.
+            </p>
+            <a href="${process.env.APP_URL}/dashboard" style="display:inline-block;background:#534AB7;color:#ffffff;text-decoration:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:600">
+              Go to dashboard →
+            </a>
+            ` : `
+            <p style="font-size:13px;color:#555;margin:0 0 16px;line-height:1.6">
+              Unfortunately, your access request for AssetIQ has been declined. Please contact your IT administrator for more information.
+            </p>
+            `}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 28px;border-top:1px solid #D3D1C7;background:#F8F7F5">
+            <p style="margin:0;font-size:11px;color:#B4B2A9">Powered by <strong style="color:#534AB7">Xeltr</strong> · AssetIQ</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+
+  await transporter.sendMail({ from: process.env.SMTP_FROM, to, subject, html })
+}

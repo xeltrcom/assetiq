@@ -27,7 +27,13 @@ export default function LoginPage() {
       setError('Invalid email or password')
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      // Check approval status
+      const status = await fetch('/api/auth/approval-status').then(r => r.json())
+      if (status.status === 'PENDING' || status.status === 'REJECTED') {
+        router.push('/auth/pending')
+      } else {
+        router.push('/dashboard')
+      }
     }
   }
 
@@ -143,3 +149,4 @@ export default function LoginPage() {
     </div>
   )
 }
+
