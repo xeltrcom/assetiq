@@ -24,7 +24,7 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
       <Sidebar />
       <EmployeeDetailClient
         employee={JSON.parse(JSON.stringify(employee))}
-        isAdmin={session.user.role === 'ADMIN'}
+        isAdmin={session.user!.role === 'ADMIN'}
       />
     </div>
   )

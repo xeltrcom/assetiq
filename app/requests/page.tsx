@@ -10,11 +10,11 @@ export default async function RequestsPage({
   const session = await auth()
   if (!session) redirect('/auth/login')
 
-  const isAdmin = session.user.role === 'ADMIN'
+  const isAdmin = session.user!.role === 'ADMIN'
 
   const where: any = {}
   if (searchParams.status) where.status = searchParams.status
-  if (!isAdmin) where.requestedById = session.user.id
+  if (!isAdmin) where.requestedById = session.user!.id
 
   const requests = await prisma.assetRequest.findMany({
     where,
@@ -28,7 +28,7 @@ export default async function RequestsPage({
   const counts = await prisma.assetRequest.groupBy({
     by: ['status'],
     _count: { _all: true },
-    where: isAdmin ? {} : { requestedById: session.user.id },
+    where: isAdmin ? {} : { requestedById: session.user!.id },
   })
 
   return (

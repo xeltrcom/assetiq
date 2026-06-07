@@ -27,7 +27,7 @@ export default async function AssetDetailPage({ params }: { params: { id: string
       <AssetDetailClient
         asset={JSON.parse(JSON.stringify(asset))}
         users={users}
-        isAdmin={session.user.role === 'ADMIN'}
+        isAdmin={session.user!.role === 'ADMIN'}
       />
     </div>
   )

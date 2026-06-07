@@ -9,14 +9,14 @@ export default async function AlertsPage() {
   if (!session) redirect('/auth/login')
 
   const notifications = await prisma.notification.findMany({
-    where:   { userId: session.user.id },
+    where:   { userId: session.user!.id },
     orderBy: { createdAt: 'desc' },
     take:    100,
     include: { asset: { select: { id: true, name: true, assetTag: true, category: true } } },
   })
 
   const unreadCount = await prisma.notification.count({
-    where: { userId: session.user.id, read: false },
+    where: { userId: session.user!.id, read: false },
   })
 
   return (
@@ -25,7 +25,7 @@ export default async function AlertsPage() {
       <AlertsClient
         notifications={JSON.parse(JSON.stringify(notifications))}
         unreadCount={unreadCount}
-        userId={session.user.id}
+        userId={session.user!.id}
       />
     </div>
   )

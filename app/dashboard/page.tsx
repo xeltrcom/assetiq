@@ -29,7 +29,7 @@ export default async function DashboardPage() {
       include: { assignedTo: { select: { name: true } } },
     }),
     prisma.notification.findMany({
-      where: { userId: session.user.id, read: false },
+      where: { userId: session.user!.id, read: false },
       take: 8,
       orderBy: { createdAt: 'desc' },
       include: { asset: { select: { name: true, assetTag: true } } },
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
         recentAssets={JSON.parse(JSON.stringify(recentAssets))}
         notifications={JSON.parse(JSON.stringify(recentNotifications))}
         categoryBreakdown={categoryBreakdown}
-        userName={session.user.name ?? 'Admin'}
+        userName={session.user!.name ?? 'Admin'}
       />
     </div>
   )
