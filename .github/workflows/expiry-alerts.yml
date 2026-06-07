@@ -1,0 +1,20 @@
+name: Daily expiry alerts
+
+on:
+  schedule:
+    # Runs every day at 6:00 AM UTC (11:30 AM IST)
+    - cron: '0 6 * * *'
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  check-expiry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger expiry check
+        run: |
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/notifications/check-expiry"
+          echo "Expiry check triggered"

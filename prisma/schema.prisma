@@ -1,0 +1,326 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  department    String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  assignedAssets Asset[]  @relation("AssignedAssets")
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  requestedAssets AssetRequest[] @relation("RequestedBy")
+  approvedRequests AssetRequest[] @relation("ApprovedBy")
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Asset {
+  id              String      @id @default(cuid())
+  assetTag        String      @unique
+  name            String
+  description     String?
+  category        AssetCategory
+  status          AssetStatus @default(ACTIVE)
+
+  // Device fields (laptops, desktops, printers etc.)
+  brand           String?
+  model           String?
+  serialNumber    String?
+  ipAddress       String?
+  macAddress      String?
+  hostname        String?
+  os              String?
+  osVersion       String?
+  processor       String?
+  ramGb           Int?
+  storageGb       Int?
+  batteryHealth   Int?        // percentage
+
+  // License fields
+  licenseKey      String?
+  licenseSeats    Int?
+  vendor          String?
+
+  // Vehicle fields
+  vehicleReg      String?
+  vehicleMake     String?
+  vehicleModel    String?
+
+  // Financial
+  purchaseDate    DateTime?
+  purchasePrice   Float?
+  currentValue    Float?
+  depreciationRate Float?    // percentage per year
+
+  // Expiry
+  warrantyExpiry  DateTime?
+  licenseExpiry   DateTime?
+  insuranceExpiry DateTime?
+  maintenanceDue  DateTime?
+
+  // Location
+  location        String?
+  floor           String?
+  building        String?
+
+  // Images
+  imageUrl        String?
+  qrCode          String?
+
+  // Relations
+  assignedToId    String?
+  assignedTo      User?       @relation("AssignedAssets", fields: [assignedToId], references: [id])
+  employeeId      String?
+  employee        Employee?   @relation("EmployeeAssets", fields: [employeeId], references: [id])
+
+  // AI fields
+  aiTags          String[]
+  aiRiskScore     Int?        // 0-100
+  aiNotes         String?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  auditLogs       AuditLog[]
+  notifications   Notification[]
+  maintenanceLogs MaintenanceLog[]
+  maintenanceSchedules MaintenanceSchedule[] @relation("AssetMaintenance")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  assetId   String
+  userId    String
+  action    String
+  oldValue  String?
+  newValue  String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String             @id @default(cuid())
+  userId    String
+  assetId   String?
+  type      NotificationType
+  title     String
+  message   String
+  severity  NotificationSeverity @default(INFO)
+  read      Boolean            @default(false)
+  sentEmail Boolean            @default(false)
+  createdAt DateTime           @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset? @relation(fields: [assetId], references: [id], onDelete: SetNull)
+}
+
+model MaintenanceLog {
+  id          String   @id @default(cuid())
+  assetId     String
+  description String
+  cost        Float?
+  performedBy String?
+  performedAt DateTime @default(now())
+  nextDue     DateTime?
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
+model DiscoveryScan {
+  id          String   @id @default(cuid())
+  ipRange     String
+  status      String
+  devicesFound Int     @default(0)
+  results     Json?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+}
+
+enum Role {
+  ADMIN
+  USER
+  VIEWER
+}
+
+enum AssetCategory {
+  LAPTOP
+  DESKTOP
+  SERVER
+  PRINTER
+  NETWORK_DEVICE
+  MOBILE
+  SOFTWARE_LICENSE
+  FURNITURE
+  VEHICLE
+  OTHER
+}
+
+enum AssetStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  RETIRED
+  LOST
+  EXPIRING_SOON
+  EXPIRED
+}
+
+enum NotificationType {
+  WARRANTY_EXPIRY
+  LICENSE_EXPIRY
+  INSURANCE_EXPIRY
+  MAINTENANCE_DUE
+  ASSET_ASSIGNED
+  ASSET_RETIRED
+  DISCOVERY_COMPLETE
+  AI_ALERT
+}
+
+enum NotificationSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  RESIGNED
+}
+
+model Employee {
+  id          String         @id @default(cuid())
+  employeeId  String         @unique
+  name        String
+  email       String?        @unique
+  phone       String?
+  department  String?
+  designation String?
+  location    String?
+  imageUrl    String?
+  status      EmployeeStatus @default(ACTIVE)
+  joinedAt    DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  assets      Asset[]        @relation("EmployeeAssets")
+}
+
+enum RequestType {
+  NEW_ASSET
+  ASSET_UPGRADE
+  ASSET_REPLACEMENT
+  ADDITIONAL_ASSET
+  ASSET_RETURN
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED_BY_MANAGER
+  APPROVED
+  REJECTED
+  FULFILLED
+  CANCELLED
+}
+
+model AssetRequest {
+  id             String        @id @default(cuid())
+  requestNumber  String        @unique
+  type           RequestType
+  status         RequestStatus @default(PENDING)
+  title          String
+  description    String?
+  urgency        String        @default("NORMAL")
+
+  requestedById  String
+  requestedBy    User          @relation("RequestedBy", fields: [requestedById], references: [id])
+
+  assetId        String?
+  assetCategory  String?
+  quantity       Int           @default(1)
+
+  managerNote    String?
+  adminNote      String?
+
+  approvedById   String?
+  approvedBy     User?         @relation("ApprovedBy", fields: [approvedById], references: [id])
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Vendor {
+  id           String   @id @default(cuid())
+  vendorCode   String   @unique
+  name         String
+  contactPerson String?
+  phone        String?
+  email        String?
+  address      String?
+  website      String?
+  category     String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MaintenanceSchedule {
+  id          String   @id @default(cuid())
+  assetId     String
+  asset       Asset    @relation("AssetMaintenance", fields: [assetId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  scheduledAt DateTime
+  completedAt DateTime?
+  cost        Float?
+  technicianName String?
+  status      String   @default("SCHEDULED")
+  notes       String?
+  createdAt   DateTime @default(now())
+}
