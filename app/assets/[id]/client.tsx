@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { DocumentsTab } from '@/components/assets/documents-tab'
 import {
   Laptop, FileText, Armchair, Car, Box, Edit2, Trash2,
   Save, X, ChevronLeft, User, MapPin, Calendar, DollarSign,
@@ -11,6 +10,8 @@ import {
   AlertTriangle, CheckCircle, Clock, Wrench
 } from 'lucide-react'
 import { formatDate, daysUntil, getExpiryStatus, formatCurrency } from '@/lib/utils'
+import { DocumentsTab } from '@/components/assets/documents-tab'
+import { CheckoutModal } from '@/components/assets/checkout-modal'
 
 const CATEGORY_ICONS: Record<string, any> = {
   LAPTOP: Laptop, DESKTOP: Monitor, SERVER: Box, PRINTER: Box,
@@ -141,6 +142,7 @@ export function AssetDetailClient({ asset, users, isAdmin }: any) {
               </>
             ) : (
               <>
+                <CheckoutModal asset={asset} />
                 <button onClick={() => setEditing(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800">
                   <Edit2 size={14} /> Edit
                 </button>
@@ -157,7 +159,7 @@ export function AssetDetailClient({ asset, users, isAdmin }: any) {
 
       {/* Tabs */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 flex gap-1">
-        {(['overview','specs','financial','history','documents'] as const).map(t => (
+        {(['overview','specs','financial','history'] as const).map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors capitalize ${
               tab === t ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
