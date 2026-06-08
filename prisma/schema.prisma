@@ -129,6 +129,7 @@ model Asset {
   notifications   Notification[]
   maintenanceLogs MaintenanceLog[]
   maintenanceSchedules MaintenanceSchedule[] @relation("AssetMaintenance")
+  documents            AssetDocument[]        @relation("AssetDocuments")
 }
 
 model AuditLog {
@@ -333,5 +334,29 @@ enum ApprovalStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+
+model AssetDocument {
+  id          String   @id @default(cuid())
+  assetId     String
+  asset       Asset    @relation("AssetDocuments", fields: [assetId], references: [id], onDelete: Cascade)
+  name        String
+  type        DocumentType
+  url         String
+  publicId    String?
+  size        Int?
+  uploadedById String
+  createdAt   DateTime @default(now())
+}
+
+enum DocumentType {
+  INVOICE
+  WARRANTY
+  MANUAL
+  IMAGE
+  CONTRACT
+  MAINTENANCE_REPORT
+  OTHER
 }
 
