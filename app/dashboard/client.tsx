@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Box, AlertTriangle, DollarSign, Laptop, Bell, Plus, Search } from 'lucide-react'
+import { NotificationBell } from '@/components/layout/topbar'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
@@ -62,6 +63,7 @@ export function DashboardClient({ stats, recentAssets, notifications, categoryBr
             className="bg-transparent text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 outline-none flex-1"
           />
         </div>
+        <NotificationBell />
         <Link
           href="/assets/new"
           className="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-800 text-white text-sm font-medium px-3.5 py-2 rounded-xl transition-colors"

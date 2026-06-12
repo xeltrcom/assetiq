@@ -12,6 +12,7 @@ import {
 import { formatDate, daysUntil, getExpiryStatus, formatCurrency } from '@/lib/utils'
 import { DocumentsTab } from '@/components/assets/documents-tab'
 import { CheckoutModal } from '@/components/assets/checkout-modal'
+import { AccessoriesTab } from '@/components/assets/accessories-tab'
 
 const CATEGORY_ICONS: Record<string, any> = {
   LAPTOP: Laptop, DESKTOP: Monitor, SERVER: Box, PRINTER: Box,
@@ -32,7 +33,7 @@ const STATUSES = ['ACTIVE','INACTIVE','MAINTENANCE','RETIRED','LOST']
 
 export function AssetDetailClient({ asset, users, isAdmin }: any) {
   const router  = useRouter()
-  const [tab,     setTab]     = useState<'overview'|'specs'|'financial'|'history'|'documents'>('overview')
+  const [tab,     setTab]     = useState<'overview'|'specs'|'financial'|'history'|'documents'|'accessories'>('overview')
   const [editing, setEditing] = useState(false)
   const [form,    setForm]    = useState(asset)
   const [saving,  setSaving]  = useState(false)
@@ -159,7 +160,7 @@ export function AssetDetailClient({ asset, users, isAdmin }: any) {
 
       {/* Tabs */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 flex gap-1">
-        {(['overview','specs','financial','history'] as const).map(t => (
+        {(['overview','specs','financial','history','documents', ...((['LAPTOP','DESKTOP'].includes(asset.category)) ? ['accessories'] : [])] as any[]).map((t: any) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors capitalize ${
               tab === t ? 'border-brand-600 text-brand-600' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
@@ -407,6 +408,11 @@ export function AssetDetailClient({ asset, users, isAdmin }: any) {
                 </div>
               )}
             </div>
+          )}
+
+          {/* ACCESSORIES TAB */}
+          {tab === 'accessories' && (
+            <AccessoriesTab assetId={asset.id} />
           )}
 
           {/* DOCUMENTS TAB */}

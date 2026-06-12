@@ -44,9 +44,11 @@ export function Sidebar() {
   const [userOpen,    setUserOpen]    = useState(false)
   const [collapsed,   setCollapsed]   = useState(false)
   const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [mounted,     setMounted]     = useState(false)
 
   // Close mobile menu on route change
   useEffect(() => { setMobileOpen(false) }, [pathname])
+  useEffect(() => { setMounted(true) }, [])
 
   const initials = session?.user?.name
     ?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) ?? 'U'
@@ -118,14 +120,17 @@ export function Sidebar() {
 
       {/* Bottom */}
       <div className="border-t border-gray-200 dark:border-gray-800 p-2 space-y-1">
-        <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+     <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          suppressHydrationWarning
           title={collapsed ? (theme === 'dark' ? 'Light mode' : 'Dark mode') : undefined}
           className={cn(
             'w-full flex items-center gap-2.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
             collapsed ? 'px-2 py-2.5 justify-center' : 'px-2.5 py-2'
           )}>
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          {!collapsed && (theme === 'dark' ? 'Light mode' : 'Dark mode')}
+          <span>
+            {mounted ? (theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />) : <Moon size={16} />}
+          </span>
+          {!collapsed && <span>{mounted ? (theme === 'dark' ? 'Light mode' : 'Dark mode') : 'Dark mode'}</span>}
         </button>
 
         <div className="relative">

@@ -48,6 +48,9 @@ export function ReportsClient({
 
   const totalAssets = categoryData.reduce((a: number, c: any) => a + c.value, 0)
 
+  function exportPDF() {
+    window.open('/api/reports/pdf', '_blank')
+  }
   function exportCSV() {
     const rows = [
       ['Category', 'Count'],
@@ -74,11 +77,17 @@ export function ReportsClient({
     <main className="flex-1 flex flex-col overflow-hidden">
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-3.5 flex items-center">
         <h1 className="text-base font-semibold text-gray-900 dark:text-white flex-1">Reports</h1>
-        <button
+       <button
           onClick={exportCSV}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
           <Download size={14} /> Export CSV
+        </button>
+        <button
+          onClick={exportPDF}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        >
+          <Download size={14} /> Export PDF
         </button>
       </div>
 

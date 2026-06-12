@@ -130,6 +130,7 @@ model Asset {
   maintenanceLogs MaintenanceLog[]
   maintenanceSchedules MaintenanceSchedule[] @relation("AssetMaintenance")
   documents            AssetDocument[]        @relation("AssetDocuments")
+  accessories          AssetAccessory[]       @relation("AssetAccessories")
 }
 
 model AuditLog {
@@ -358,5 +359,23 @@ enum DocumentType {
   CONTRACT
   MAINTENANCE_REPORT
   OTHER
+}
+
+
+model AssetAccessory {
+  id           String   @id @default(cuid())
+  parentAssetId String
+  parentAsset  Asset    @relation("AssetAccessories", fields: [parentAssetId], references: [id], onDelete: Cascade)
+  name         String
+  brand        String?
+  model        String?
+  serialNumber String?
+  purchaseDate DateTime?
+  purchasePrice Float?
+  warrantyExpiry DateTime?
+  status       String   @default("ACTIVE")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
